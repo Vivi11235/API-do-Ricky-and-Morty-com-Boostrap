@@ -1,41 +1,28 @@
-// CONFIGURACAO DO CLIENT HTTP AXIOS
 const api = axios.create({
     baseURL: 'https://rickandmortyapi.com/api'
 });
 
 // CAPTURAR OS ELEMENTOS DA DOM QUE SERÃO MODIFICADOS PELO JS
 const espacoCardsRow = document.getElementById('espaco-cards')
-const botaoPrev = document.getElementById('botao-prev')
-const botaoAtual = document.getElementById('botao-atual')
-const botaoNext = document.getElementById('botao-next')
 const qtdPersonagensSpan = document.getElementById('qtd-personagens')
-
-let paginaAtual = 1
-let totalPaginas = 0
 
 // 1 BUSCA DEVE OCORRER QUANDO A PAGINA CARREGA
 document.addEventListener('DOMContentLoaded', async () => {
-    const dadosRetornados = await buscarPersonagens(paginaAtual);
+
+    const personagemId = localStorage.getItem('personagemId');
+
+    const dadosRetornados = await buscarPersonagens(personagemId);
 
     console.log(dadosRetornados);
 
     qtdPersonagensSpan.innerText = dadosRetornados.totalPersonagens
    
-    montarColunasCards(dadosRetornados.personagens)
-    mudarBotoes(dadosRetornados.paginaAnterior, dadosRetornados.proximaPagina)
+    montarColunasCards(dadosRetornados)
 
 });
 
-botaoNext.addEventListener('click', proximaPagina)
-botaoPrev.addEventListener('click', paginaAnterior)
-
-
-
-
-function montarColunasCards(listaPersonagens) {
+function montarColunasCards(personagem) {
     espacoCardsRow.innerHTML = ""
-
-    listaPersonagens.forEach(async(personagem) => {
         /*
             <div class="col-12 col-md-6 col-lg-4">
                     <div class="card w-100">
@@ -69,7 +56,6 @@ function montarColunasCards(listaPersonagens) {
         // CRIA COLUNA
         const divCol = document.createElement('div')
         divCol.setAttribute('class', 'col-12 col-md-6 col-lg-4 espaco-card')
-        divCol.onclick = () => detalhesPersonagem(personagem.id);
 
         // CRIA CARD
         const divCard = document.createElement('div')
@@ -144,7 +130,7 @@ function montarColunasCards(listaPersonagens) {
  
  
          // CRIA DL
-         const dadosEpisodio = await buscarDadosEpisodio(personagem.episode[personagem.episode.length - 1])
+         const dadosEpisodio = buscarDadosEpisodio(personagem.episode[personagem.episode.length - 1])
  
          const detalhamentoPersonagem = document.createElement('dl');
          detalhamentoPersonagem.innerHTML = `
@@ -170,45 +156,15 @@ function montarColunasCards(listaPersonagens) {
 
         espacoCardsRow.appendChild(divCol)
 
-    })
 }
 
-function mudarBotoes(prev, next) {
-    botaoAtual.children[0].innerText = paginaAtual
-
-    if (!prev) {
-        botaoPrev.classList.remove('cursor-pointer')
-        botaoPrev.classList.add('disabled')
-    } else {
-        botaoPrev.classList.add('cursor-pointer')
-        botaoPrev.classList.remove('disabled')
-    }
-
-    if (!next) {
-        botaoNext.classList.remove('cursor-pointer')
-        botaoNext.classList.add('disabled')
-    } else {
-        botaoNext.classList.add('cursor-pointer')
-        botaoNext.classList.remove('disabled')
-    }
-}
-
-async function buscarPersonagens(pagina) {
+async function buscarPersonagens(personagemId) {
     try {
-        const resposta = await api.get('/character', {
-            params: {
-                page: pagina,
-            }
-        });
+        const resposta = await api.get(`/character/${personagemId}`);
+        console.log(resposta);
 
-        const dadosApi = {
-            totalPaginas: resposta.data.info.pages,
-            totalPersonagens: resposta.data.info.count,
-            personagens: resposta.data.results,
-            proximaPagina: resposta.data.info.next,
-            paginaAnterior: resposta.data.info.prev
-        }
-       
+        const dadosApi = resposta.data;
+        
         return dadosApi
        
 
@@ -234,37 +190,5 @@ async function buscarDadosEpisodio(url) {
     }
 }
 
-function detalhesPersonagem(personagemId) {
-    console.log(personagemId)
-    localStorage.setItem('personagemId', personagemId)
-    document.location.href = './personagens.html'
-}
 
-async function proximaPagina() {
-    // verificar se o botão esta desabilitado
-    if (!botaoNext.classList.contains('disabled')) {
-        // só dispara a requisição pra API se o botão estiver habilitado
-        ++paginaAtual
-
-        const dadosAPI = await buscarPersonagens(paginaAtual)
-
-
-        montarColunasCards(dadosAPI.personagens)
-        mudarBotoes(dadosAPI.paginaAnterior, dadosAPI.proximaPagina)
-    }
-}
-
-async function paginaAnterior() {
-    // verificar se o botão esta desabilitado
-    if (!botaoPrev.classList.contains('disabled')) {
-        // só dispara a requisição pra API se o botão estiver habilitado
-        --paginaAtual
-
-        const dadosAPI = await buscarPersonagens(paginaAtual)
-
-
-        montarColunasCards(dadosAPI.personagens)
-        mudarBotoes(dadosAPI.paginaAnterior, dadosAPI.proximaPagina)
-    }
-}
 
