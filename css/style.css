@@ -85,6 +85,10 @@ h1 {
     h1 {
         font-size: 3.5rem;
     }
+
+    #background{
+        background-size: cover;
+    }
 }
 
 @media (max-width: 350px) {
@@ -122,3 +126,58 @@ h1 {
         margin-bottom: 600px;
     }
 }
+
+h1 {
+    animation: colorChange 5s ease-in infinite;
+}
+
+.character-name {
+    animation: colorChange 5s ease-in infinite;
+}
+
+#my-image{
+    animation: movePosition 5s cubic-bezier(.5,.1,1,.14) infinite;
+}
+
+@keyframes movePosition{
+
+    0% {
+        margin-left: 2px;
+      }
+
+    50%{
+        margin-left: 100px;
+    }
+
+
+    100% {
+        margin-left: 2px;
+    }
+}
+  
+@keyframes colorChange {
+    0% {
+      color: black;
+    }
+
+    25%{
+      color: greenyellow;
+    }
+
+    50%{
+      color: green;
+    }
+
+    75% {
+      color: rgb(2, 76, 2);
+    }
+
+    100% {
+      color: black;
+    }
+  }
+
+
+
+
+  
